@@ -3,23 +3,10 @@
    render() affiche l'aperçu statique ; launch() joue la simulation.
    Les contenus (textes, fichiers audio et vidéo) sont dans content.js. */
 window.Injects = (() => {
-  const { C, esc, $, $$, el, fill, f } = UI;
+  const { C, esc, $, $$, el, fill, f, makeRun, reduced } = UI;
   const I = C.injectsIntro;
-  const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let root, body, logEl, launchBtn, active = null, run = null, dispose = null, busy = false, t0 = 0;
 
-  /* ---------- Exécution annulable : changer d'inject coupe tout proprement ---------- */
-  function makeRun() {
-    const timers = new Set(), cleanups = [];
-    let dead = false;
-    return {
-      get dead() { return dead; },
-      wait(ms) { return new Promise(res => { if (dead) return; const t = setTimeout(() => { timers.delete(t); res(); }, reduced ? Math.min(ms, 120) : ms); timers.add(t); }); },
-      every(ms, fn) { const t = setInterval(() => dead || fn(), ms); cleanups.push(() => clearInterval(t)); },
-      onStop(fn) { cleanups.push(fn); },
-      stop() { dead = true; timers.forEach(clearTimeout); cleanups.forEach(fn => fn()); },
-    };
-  }
   function log(text, tone) {
     const s = Math.floor((performance.now() - t0) / 1000);
     const li = el('li', tone || '', `<time>+${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}</time><span>${esc(text)}</span>`);
@@ -590,7 +577,7 @@ window.Injects = (() => {
         <div class="inj-stage-body" id="stageBody"></div>
       </section>
       <aside class="inj-fiche">
-        <dl id="fiche"></dl>
+        <p class="inj-tests" id="fiche"></p>
         <button type="button" class="launch" id="launchBtn"></button>
         <div class="inj-log"><h3>${esc(I.logTitle)}</h3><ol id="injLog"></ol></div>
       </aside>
@@ -614,10 +601,7 @@ window.Injects = (() => {
     active = C.injects.find(x => x.id === id) || C.injects[0];
     $$('.inj-tabs button', root).forEach(b => b.setAttribute('aria-selected', b.dataset.id === active.id));
     $('#stageMedium', root).textContent = active.medium;
-    $('#fiche', root).innerHTML = `
-      <dt>${esc(I.tests)}</dt><dd>${esc(active.tests)}</dd>
-      <dt>${esc(I.target)}</dt><dd>${esc(active.target)}</dd>
-      <dt>${esc(I.measure)}</dt><dd><ul>${active.measure.map(m => `<li>${esc(m)}</li>`).join('')}</ul></dd>`;
+    $('#fiche', root).textContent = active.tests;
     launchBtn.textContent = I.launch; launchBtn.classList.remove('again');
     logEl.innerHTML = `<li class="empty">${esc(I.logEmpty)}</li>`;
     body.className = 'inj-stage-body is-' + active.id; body.scrollTop = 0;

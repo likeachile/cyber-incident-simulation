@@ -28,13 +28,7 @@
 
 /* Fiche et journal */
 .inj-fiche { display: flex; flex-direction: column; gap: 1em; }
-.inj-fiche dl { margin: 0; font-size: .86em; }
-.inj-fiche dt { color: var(--faint); font-size: .92em; margin-top: .85em; }
-.inj-fiche dt:first-child { margin-top: 0; }
-.inj-fiche dd { margin: .2em 0 0; color: #cfd5de; line-height: 1.4; }
-.inj-fiche dd ul { margin: 0; padding: 0; list-style: none; }
-.inj-fiche dd li { padding-left: 1em; position: relative; }
-.inj-fiche dd li::before { content: ""; position: absolute; left: 0; top: .62em; width: .4em; height: 1px; background: var(--faint); }
+.inj-tests { font-size: .9em; line-height: 1.45; color: #cfd5de; }
 .launch {
   flex: none; width: 100%; padding: .85em 1em; border-radius: 2px; font-weight: 650; font-size: 1em;
   background: var(--red); border: 1px solid var(--red); color: #fff; transition: background .15s, box-shadow .2s, transform .15s;

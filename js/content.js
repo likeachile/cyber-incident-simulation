@@ -2,8 +2,8 @@
    CONTENU DU SITE — tout ce qui se lit à l'écran est ici.
    Les blocs marqués « PLACEHOLDER » attendent tes contenus définitifs :
    remplace le texte ou le chemin de fichier, rien d'autre à toucher.
-   Source des sections Mission / Dispositif / Pourquoi : le 2-pager
-   « Cyber Incident Simulation » (site/*.pdf).
+   Le fond vient du 2-pager « Cyber Incident Simulation » ; le site le montre
+   en animation plutôt qu'en texte.
    ========================================================================== */
 window.CONTENT = {
 
@@ -54,57 +54,62 @@ window.CONTENT = {
   ],
 
   nav: [
-    { id: 'mission', label: 'Mission' },
+    { id: 'film', label: 'Exercice' },
     { id: 'injects', label: 'Injects' },
-    { id: 'dispositif', label: 'Dispositif' },
-    { id: 'pourquoi', label: 'Pourquoi' },
     { id: 'contact', label: 'Contact' },
   ],
 
-  /* ---------- 1. Mission ---------- */
-  mission: {
-    title: 'Attendre la brèche n’est pas une stratégie.',
-    lead: 'Les cyberattaques font la une chaque jour. La question n’est plus de savoir si votre banque sera touchée, ni même quand : c’est sans doute déjà arrivé. La seule question utile est de savoir si votre comité de crise sait répondre.',
-    body: [
-      'Nous jouons l’attaque chez vous, en salle de crise. Une demi-journée d’exercice couvre deux à trois jours d’incident réel.',
-      'Votre direction ne lit pas un scénario. Elle reçoit les appels, les messages, les articles et les vidéos qu’elle recevrait vraiment, fabriqués sur mesure pour votre établissement.',
+  /* ---------- 1. Exercice : le film animé ----------
+     Trois phases (Préparation, Simulation, Restitution) jouées en une
+     cinquantaine de secondes. Très peu de texte : garder des légendes courtes. */
+  film: {
+    intro: ['Attendre la brèche', 'n’est pas une stratégie.'],
+    chapters: [
+      { id: 'prep', label: 'Préparation' },
+      { id: 'sim', label: 'Simulation' },
+      { id: 'rest', label: 'Restitution' },
     ],
-    not: 'Ce n’est pas une campagne de phishing. Aucun e-mail piégé ne part vers vos collaborateurs : tout se joue dans un périmètre fermé, avec des contenus marqués « exercice ».',
-    fact: {
-      figure: '120+',
-      text: 'établissements financiers ont participé en 2025 à la simulation organisée par le Swiss Financial Sector Cyber Security Centre.',
+    prep: {
+      caption: 'Vos menaces. Votre scénario.',
+      // Surface d'attaque balayée par le radar ; `locked` = les vecteurs retenus.
+      nodes: ['Messagerie', 'Core banking', 'Paiements', 'Presse', 'Téléphonie', 'Clients', 'Régulateur', 'Réseaux sociaux', 'Prestataires'],
+      locked: [0, 3, 2],
+      scenario: '« {scenario} »',
+      count: '12 événements, 6 injects',
     },
-    cta: 'Voir les injects',
-    timelineTitle: 'Trois jours d’attaque, joués en une demi-journée',
-    timelineHint: 'Les repères pleins ouvrent l’inject correspondant.',
-    questionsTitle: 'Cinq décisions que votre comité devra prendre',
-    questions: [
-      { when: 'Le régulateur vous contacte.', ask: 'Quelles sont vos obligations, et qui rédige l’annonce ?' },
-      { when: 'La messagerie est compromise.', ask: 'Comment communiquez-vous en interne : e-mail, canal chiffré, WhatsApp, SMS ?' },
-      { when: 'Les médias appellent.', ask: 'À quoi ressemble votre stratégie de communication ?' },
-      { when: 'L’application cœur est touchée, l’intégrité des données perdue.', ask: 'Depuis quand ? Pouvez-vous vous fier à vos sauvegardes ?' },
-      { when: 'Une rançon est exigée.', ask: 'Allez-vous payer ?' },
-    ],
+    sim: {
+      caption: 'Une demi-journée en salle. Trois jours d’attaque.',
+      // PLACEHOLDER — les six injects qui s'enchaînent à l'écran.
+      beats: [
+        { kind: 'mail', day: 'Lundi', time: '07:42', tag: 'E-mail', from: 'Expéditeur inconnu', subject: 'Vos clients. Nos conditions.' },
+        { kind: 'news', day: 'Lundi', time: '11:05', tag: 'Presse', flag: 'Exclusif', headline: '{bank} : des dossiers clients en ligne', reach: 'Reprises' },
+        { kind: 'call', day: 'Lundi', time: '14:20', tag: 'Appel entrant', name: '{journalist}', sub: '{outlet}' },
+        { kind: 'voice', day: 'Mardi', time: '13:15', tag: 'Voix clonée', who: 'Voix de {ceo}', line: '« On paie. Prépare le virement. »' },
+        { kind: 'video', day: 'Mardi', time: '18:10', tag: 'Deepfake', mark: 'visage généré' },
+        { kind: 'agent', day: 'Mercredi', time: '08:30', tag: 'Agent IA', lines: ['Mon nom est dans la fuite.', 'Je ne peux rien confirmer.', 'Alors je transfère mes avoirs.'] },
+      ],
+      // Tout arrive en même temps : les notifications qui submergent l'écran.
+      flood: ['Demande presse', 'Client en ligne', 'Régulateur à l’accueil', '#{bankTag} en tendance', 'Appel manqué', 'Rançon : 100 M$', 'Police de Singapour', 'Avocats des clients', 'Service desk saturé', '1 000 dossiers de plus', 'Plus personne ne se connecte', 'Agence de presse'],
+      question: 'Allez-vous payer ?',
+    },
+    rest: {
+      caption: 'Chaque décision, horodatée.',
+      note: 'Exemple de restitution',
+      // PLACEHOLDER — résultats d'exemple. `ok` : true = réflexe tenu, false = écart.
+      rows: [
+        { when: 'Lun 07:42', what: 'E-mail d’extorsion', result: 'Escalade en 14 minutes', ok: true },
+        { when: 'Lun 11:05', what: 'Article de presse', result: 'Aucun élément de langage', ok: false },
+        { when: 'Lun 14:20', what: 'Appel de la journaliste', result: 'Deux informations confirmées', ok: false },
+        { when: 'Mar 13:15', what: 'Voix clonée du CEO', result: 'Contre-appel effectué', ok: true },
+        { when: 'Mar 18:10', what: 'Deepfake vidéo', result: 'Paiement bloqué', ok: true },
+        { when: 'Mer 08:30', what: 'Agent IA', result: 'Identité jamais vérifiée', ok: false },
+      ],
+      cta: [
+        { label: 'Lancer un inject', go: 'injects' },
+        { label: 'Parler de votre prochaine crise', go: 'contact' },
+      ],
+    },
   },
-
-  /* Chronologie de l'attaque (2-pager, « Timeline of a possible cyber attack »).
-     `inject` relie un événement à sa démo. `gap` = secondes réelles avant
-     l'événement suivant dans l'horloge d'exercice du site. */
-  timeline: [
-    { day: 'Lun', time: '07:42', text: 'Le CEO reçoit un e-mail d’un attaquant anonyme.', inject: 'messages' },
-    { day: 'Lun', time: '08:15', text: 'Collaborateurs et équipes IT arrivent au bureau : plus personne ne peut se connecter.' },
-    { day: 'Lun', time: '09:30', text: 'Des données clients sensibles sont publiées sur un site de partage de fichiers.' },
-    { day: 'Lun', time: '11:05', text: 'Spéculations sur les réseaux sociaux, demandes de commentaire en série.', inject: 'fakenews' },
-    { day: 'Lun', time: '14:20', text: 'Une journaliste financière appelle le CEO au sujet de la fuite.', inject: 'call' },
-    { day: 'Lun', time: '16:45', text: 'Le régulateur se présente à l’accueil et demande « la personne responsable ».' },
-    { day: 'Mar', time: '08:00', text: '1 000 dossiers clients supplémentaires sont diffusés.' },
-    { day: 'Mar', time: '10:30', text: 'Le régulateur de Singapour dépêche une équipe d’enquête.' },
-    { day: 'Mar', time: '13:15', text: 'Second e-mail de rançon : 100 millions de dollars, ou toutes les données clients sont publiées.', inject: 'voice' },
-    { day: 'Mar', time: '18:10', text: 'La police de Singapour arrive dans les bureaux locaux. Le CEO est en route pour l’aéroport.', inject: 'deepfake' },
-    { day: 'Mer', time: '08:30', text: 'Suisse, Singapour, Hong Kong : les entités ne peuvent plus opérer ni répondre aux clients.', inject: 'agent' },
-    { day: 'Mer', time: '11:00', text: 'Un cabinet d’avocats représentant des clients menace d’une action en dommages-intérêts.' },
-  ],
-  days: { Lun: 'Lundi', Mar: 'Mardi', Mer: 'Mercredi' },
 
   /* ---------- 2. Injects ---------- */
   injectsIntro: {
@@ -117,9 +122,6 @@ window.CONTENT = {
     stamp: 'Contenu fictif d’exercice',
     logTitle: 'Journal de la régie',
     logEmpty: 'Lancez l’inject : chaque étape est horodatée ici.',
-    tests: 'Ce que l’inject met à l’épreuve',
-    target: 'Destinataire',
-    measure: 'Ce que nous mesurons',
   },
 
   injects: [
@@ -128,8 +130,6 @@ window.CONTENT = {
       id: 'messages', when: 'Lun 07:42', name: 'Messages internes',
       medium: 'E-mail, Teams, WhatsApp',
       tests: 'La bascule vers un canal de secours quand la messagerie n’est plus sûre, et la vérification de l’identité d’un interlocuteur.',
-      target: 'CEO, puis l’ensemble du comité',
-      measure: ['Délai avant la première escalade', 'Canal choisi pour se coordonner', 'Demande d’approbation acceptée ou refusée'],
       channels: [
         {
           id: 'mail', label: 'E-mail',
@@ -194,8 +194,6 @@ window.CONTENT = {
       id: 'fakenews', when: 'Lun 11:05', name: 'Article de presse',
       medium: 'Presse en ligne ciblée',
       tests: 'La réaction à une information publique que vous ne contrôlez pas, et la tenue d’une ligne de communication sous pression.',
-      target: 'Communication, CEO, General Counsel',
-      measure: ['Délai avant un élément de langage validé', 'Cohérence entre les porte-parole', 'Décision : démentir, confirmer, se taire'],
       // PLACEHOLDER — article. {bank} est remplacé par la banque visée.
       article: {
         url: 'lettre-du-leman.example/place-financiere/fuite-donnees',
@@ -229,8 +227,6 @@ window.CONTENT = {
       id: 'call', when: 'Lun 14:20', name: 'Appel entrant',
       medium: 'Téléphone, voix synthétique ou comédien',
       tests: 'La discipline de parole d’un dirigeant pris à froid, sur sa ligne directe, par une journaliste qui en sait déjà trop.',
-      target: 'CEO',
-      measure: ['Informations confirmées involontairement', 'Renvoi vers la communication', 'Durée de l’appel'],
       // PLACEHOLDER — fichier audio de l'appel (mp3). Sans fichier, la voix de
       // synthèse du navigateur lit les répliques.
       audio: null,
@@ -272,8 +268,6 @@ window.CONTENT = {
       id: 'voice', when: 'Mar 13:15', name: 'Voix clonée',
       medium: 'Message vocal, voix du CEO',
       tests: 'La résistance d’un circuit de paiement à un ordre oral urgent venant, en apparence, de la plus haute autorité.',
-      target: 'CFO, trésorerie',
-      measure: ['Contre-appel effectué ou non', 'Procédure d’exception invoquée', 'Délai avant alerte à la cellule de crise'],
       // PLACEHOLDER — audio de la voix clonée (mp3/m4a/wav). Sans fichier,
       // la lecture est simulée et la voix de synthèse du navigateur lit le texte.
       audio: null,
@@ -302,8 +296,6 @@ window.CONTENT = {
       id: 'deepfake', when: 'Mar 18:10', name: 'Deepfake vidéo',
       medium: 'Message vidéo généré par IA',
       tests: 'La confiance accordée à un visage. L’ordre arrive en vidéo, depuis un aéroport, juste avant sept heures d’injoignabilité.',
-      target: 'CFO, responsable des paiements',
-      measure: ['Paiement libéré ou bloqué', 'Contrôle du bénéficiaire maintenu', 'Indices visuels relevés par l’équipe'],
       // PLACEHOLDER — vidéo deepfake (mp4). Remplace le fichier ou le chemin.
       // Par défaut : copie allégée de demo-higgsfield/demo-switch.mp4.
       // Sans fichier lisible, un écran de substitution animé prend le relais.
@@ -333,7 +325,7 @@ window.CONTENT = {
       id: 'agent', when: 'Mer 08:30', name: 'Agent IA',
       medium: 'Interlocuteur conversationnel',
       tests: 'La tenue d’un collaborateur face à un interlocuteur qui répond, insiste et s’adapte, des dizaines de fois en parallèle.',
-      target: 'Banquiers, assistants, helpdesk, communication',
+      // Les trois voyants de la démo, dans cet ordre : vérification, fuite, escalade.
       measure: ['Vérification d’identité demandée', 'Information divulguée', 'Escalade vers la cellule de crise'],
       // PLACEHOLDER — brancher un vrai modèle : indiquer l'URL d'un backend qui
       // reçoit { role, context, messages } en POST et renvoie { reply }.
@@ -424,67 +416,10 @@ window.CONTENT = {
     },
   ],
 
-  /* ---------- 3. Dispositif ---------- */
-  dispositif: {
-    title: 'Trois temps, trois niveaux',
-    lead: 'Chaque incident est unique, chaque banque aussi. Une crise cyber va vite, sans structure, sur tous les fronts à la fois. L’exercice se construit donc à partir de vos menaces, pas d’un scénario de catalogue.',
-    phases: [
-      { name: 'Préparation', points: ['Comprendre le paysage actuel des menaces.', 'Analyser et hiérarchiser les vecteurs propres à votre établissement.', 'Écrire les scénarios et les injects à partir de ces vecteurs.'] },
-      { name: 'Simulation', points: ['L’exercice suit vos scénarios de menace prioritaires.', 'Une demi-journée couvre deux à trois jours d’incident réel.', 'Trois niveaux, selon l’équipe que vous voulez éprouver.'] },
-      { name: 'Restitution', points: ['Un rapport d’observations pour combler les écarts constatés.', 'Une évaluation indépendante et un étalonnage face à vos pairs.', 'Une base pour que la direction arrête sa stratégie d’incident cyber.'] },
-    ],
-    levelsTitle: 'Quel niveau jouer',
-    levels: [
-      { tag: 'Niveau 1', name: 'Équipe de réponse à incident', format: 'Exercice sur table',
-        focus: 'Met à l’épreuve le coordinateur d’incident et son équipe pendant qu’ils déroulent leur plan de réponse.',
-        audience: 'CTO, CIO, CISO, coordinateur d’incident, responsables des équipes de réponse, BCM',
-        injects: ['messages', 'call', 'agent'] },
-      { tag: 'Niveau 2', name: 'Direction générale', format: 'Exercice sur table',
-        focus: 'Centré sur la prise de décision pendant l’incident : payer, annoncer, communiquer, couper.',
-        audience: 'CEO, COO, CFO, CTO, CIO, CISO, General Counsel, communication, RH, responsables métiers et IT',
-        injects: ['fakenews', 'call', 'voice', 'deepfake'] },
-      { tag: 'Niveau 3', name: 'Équipe technique', format: 'Exercice technique',
-        focus: 'Éprouve la capacité de l’organisation à détecter des attaquants avancés et à y répondre.',
-        audience: 'CISO, coordinateur d’incident, responsable des investigations, techniciens et opérations',
-        injects: ['messages', 'agent'] },
-    ],
-    processTitle: 'Le cycle de réponse que l’exercice parcourt',
-    process: ['Préparer', 'Identifier', 'Contenir', 'Investiguer', 'Remédier', 'Suivre'],
-  },
-
-  /* ---------- 4. Pourquoi ---------- */
-  pourquoi: {
-    title: 'Un exercice que l’on subit, pas que l’on lit',
-    lead: 'Dans un exercice classique, un animateur lit une carte : « un journaliste vous appelle ». Ici, le téléphone sonne.',
-    compareHead: ['', 'Exercice sur table classique', 'Injects de nouvelle génération'],
-    compare: [
-      ['Support', 'Cartes papier, diapositives', 'Appels, messages, articles, voix et vidéos sur les vrais canaux'],
-      ['Pression', 'Un événement à la fois, lu à voix haute', 'Plusieurs fronts en même temps, en temps réel'],
-      ['Sur mesure', 'Scénario de catalogue', 'Vos noms, vos outils, votre place financière'],
-      ['Mesure', 'Impressions de l’animateur', 'Chaque décision horodatée, comparée à vos pairs'],
-      ['Mémoire', 'On se souvient d’avoir discuté', 'On se souvient d’avoir décroché'],
-    ],
-    valuesTitle: 'Ce qui compte pour une banque privée',
-    values: [
-      { name: 'Discret', text: 'Périmètre restreint, données fictives, accord de confidentialité. Rien ne sort de la salle, rien ne touche vos clients.' },
-      { name: 'Réaliste', text: 'Les techniques sont celles des attaquants d’aujourd’hui : voix clonée, vidéo générée, interlocuteurs qui répondent.' },
-      { name: 'Mesurable', text: 'Délais de réaction, décisions, informations lâchées : la régie enregistre tout, le rapport s’appuie sur des faits.' },
-      { name: 'Sans risque', text: 'Chaque contenu porte la mention « exercice ». Aucun système de production n’est touché.' },
-    ],
-    benefitsTitle: 'Ce que votre équipe en retire',
-    benefits: [
-      'Un plan de réponse amélioré, côté personnes, processus et technologie.',
-      'Des rôles, des protocoles, des circuits de communication et d’escalade clarifiés.',
-      'Des réflexes : en crise réelle, une routine apprise rend les actions plus efficaces.',
-      'Une équipe prête, qui l’aura « déjà fait » ensemble.',
-      'Des faiblesses de processus ou techniques mises au jour, y compris dans la documentation de réponse.',
-    ],
-  },
-
-  /* ---------- 5. Contact ---------- */
+  /* ---------- 3. Contact ---------- */
   contact: {
     title: 'Parlons de votre prochaine crise',
-    lead: 'Un premier échange de trente minutes, sous accord de confidentialité. Nous repartons avec vos trois scénarios prioritaires, vous avec un format et un calendrier.',
+    lead: 'Trente minutes, sous accord de confidentialité.',
     // PLACEHOLDER — adresse qui reçoit les demandes (ouvre le client mail du visiteur).
     email: 'contact@votre-cabinet.example',
     // PLACEHOLDER — autres coordonnées, ou tableau vide.
@@ -492,7 +427,6 @@ window.CONTENT = {
       { label: 'Téléphone', value: '+41 22 000 00 00' },
       { label: 'Lieu', value: 'Genève' },
     ],
-    steps: ['Échange confidentiel de 30 minutes', 'Cadrage : menaces, niveau, participants', 'Exercice en vos murs, restitution sous dix jours'],
     fields: { name: 'Nom', bank: 'Établissement', role: 'Fonction', email: 'E-mail professionnel', level: 'Niveau envisagé', message: 'Ce que vous voulez éprouver' },
     levelOptions: ['À définir ensemble', 'Niveau 1 — équipe de réponse', 'Niveau 2 — direction générale', 'Niveau 3 — équipe technique'],
     submit: 'Demander un échange confidentiel',

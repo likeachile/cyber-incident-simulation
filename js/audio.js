@@ -1,7 +1,7 @@
 /* Sons d'interface synthétisés (Web Audio) : aucun fichier à charger.
    Tout passe par un gain maître ; `Sound.enabled` coupe l'ensemble. */
 window.Sound = (() => {
-  let ctx = null, master = null, rainNode = null, ringTimer = null;
+  let ctx = null, master = null, ringTimer = null;
   let enabled = false;
 
   function init(on) {
@@ -36,13 +36,6 @@ window.Sound = (() => {
     g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     o.connect(g).connect(master);
     o.start(t); o.stop(t + dur + 0.05);
-  }
-
-  function noiseBuffer(seconds) {
-    const buf = ctx.createBuffer(1, ctx.sampleRate * seconds, ctx.sampleRate);
-    const d = buf.getChannelData(0);
-    for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1;
-    return buf;
   }
 
   const api = {
@@ -83,24 +76,6 @@ window.Sound = (() => {
       ringTimer = setInterval(burst, 2200);
     },
     stopRing,
-
-    // Pluie contre la vitre : bruit filtré en boucle, très bas.
-    rain(on) {
-      if (!ctx) return;
-      if (on && !rainNode) {
-        const src = ctx.createBufferSource();
-        src.buffer = noiseBuffer(3); src.loop = true;
-        const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 900;
-        const lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 5200;
-        const g = ctx.createGain(); g.gain.value = 0;
-        g.gain.linearRampToValueAtTime(0.05, ctx.currentTime + 3);
-        src.connect(hp).connect(lp).connect(g).connect(master);
-        src.start();
-        rainNode = { src, g };
-      } else if (!on && rainNode) {
-        rainNode.src.stop(); rainNode = null;
-      }
-    },
 
     // Voix de synthèse du navigateur, utilisée tant qu'aucun fichier audio n'est fourni.
     speak(text, { rate = 1.02, pitch = 1, onend } = {}) {

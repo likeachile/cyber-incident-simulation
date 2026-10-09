@@ -20,7 +20,7 @@
   async function power(withSound) {
     if (started) return; started = true;
     document.body.classList.add('powered');
-    Sound.init(withSound); Sound.rain(withSound); OS.syncSound();
+    Sound.init(withSound); OS.syncSound();
     const fast = params.has('skip');
     if (fast) OS.skip(); else skipBtn.hidden = false;
     await Scene.powerOn();

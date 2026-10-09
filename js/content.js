@@ -85,6 +85,7 @@ window.CONTENT = {
         { kind: 'mail', slot: 1, day: 'Lundi', time: '07:42', tag: 'E-mail', from: 'Expéditeur inconnu', subject: 'Vos clients. Nos conditions.' },
         { kind: 'news', slot: 2, day: 'Lundi', time: '11:05', tag: 'Presse', flag: 'Exclusif', headline: '{bank} : des dossiers clients en ligne', reach: 'Reprises' },
         { kind: 'call', slot: 3, day: 'Lundi', time: '14:20', tag: 'Appel entrant', name: '{journalist}', sub: '{outlet}' },
+        { kind: 'clip', slot: 7, inject: 'manif', day: 'Lundi', time: '17:30', tag: 'Manifestation', badge: 'En direct' },
         { kind: 'clip', slot: 8, inject: 'fire', day: 'Mardi', time: '04:40', tag: 'Datacenter', badge: 'Alerte' },
         { kind: 'voice', slot: 4, day: 'Mardi', time: '13:15', tag: 'Voix clonée', who: 'Voix de {ceo}', line: '« On paie. Prépare le virement. »' },
         { kind: 'video', slot: 5, inject: 'deepfake', day: 'Mardi', time: '18:10', tag: 'Deepfake', mark: 'visage généré' },
@@ -102,6 +103,7 @@ window.CONTENT = {
         { when: 'Lun 07:42', what: 'E-mail d’extorsion', result: 'Escalade en 14 minutes', ok: true },
         { when: 'Lun 11:05', what: 'Article de presse', result: 'Aucun élément de langage', ok: false },
         { when: 'Lun 14:20', what: 'Appel de la journaliste', result: 'Deux informations confirmées', ok: false },
+        { when: 'Lun 17:30', what: 'Manifestation devant le siège', result: 'Porte-parole envoyé en 40 minutes', ok: true },
         { when: 'Mar 04:40', what: 'Datacenter en feu', result: 'Sauvegarde restaurée sans contrôle', ok: false },
         { when: 'Mar 13:15', what: 'Voix clonée du CEO', result: 'Contre-appel effectué', ok: true },
         { when: 'Mar 18:10', what: 'Deepfake vidéo', result: 'Paiement bloqué', ok: true },
@@ -264,6 +266,30 @@ window.CONTENT = {
         'Une information confirmée sans le vouloir.',
         'Plusieurs informations confirmées : elles seront dans l’article.',
       ],
+    },
+
+    /* ---- Manifestation devant la banque ---- */
+    {
+      id: 'manif', kind: 'clip', skin: 'tv', when: 'Lun 17:30', name: 'Manifestation',
+      medium: 'Images en direct, chaîne d’info',
+      tests: 'La réaction à des images que vous ne contrôlez pas, filmées devant votre porte, pendant que clients et collaborateurs regardent en direct.',
+      // PLACEHOLDER — vidéo (mp4 H.264) et image d'attente.
+      video: 'assets/video/manifestation.mp4',
+      poster: 'assets/video/manifestation.jpg',
+      badge: 'En direct',
+      title: 'Rassemblement devant le siège de la banque',
+      sub: 'La police encadre le cortège',
+      // Bandeau défilant sous l'image.
+      ticker: ['Fuite de données : la banque ne commente pas', 'Des clients réclament des explications', 'Le régulateur dit « suivre la situation »'],
+      // Ce qui s'ensuit, dans l'ordre, pendant que les images tournent.
+      feed: ['Direct ouvert sur une chaîne d’info', '40 000 vues en dix minutes', 'Des clients filment depuis le trottoir', 'Les collaborateurs demandent s’ils peuvent sortir'],
+      decision: {
+        prompt: 'Les caméras sont devant votre porte.',
+        options: [
+          { label: 'Ne rien dire, attendre que ça passe', outcome: 'Aucune prise de parole : les images tournent en boucle sans votre version.', bad: true },
+          { label: 'Envoyer un porte-parole préparé', outcome: 'Prise de parole courte et préparée, reprise dans le direct.' },
+        ],
+      },
     },
 
     /* ---- Datacenter en feu ---- */

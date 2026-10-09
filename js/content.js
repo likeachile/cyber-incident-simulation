@@ -48,7 +48,7 @@ window.CONTENT = {
     'Mémoire .................... 32 768 Mo  OK',
     'Disque chiffré ............. déverrouillé',
     'Tunnel GVA-01 .............. établi',
-    'Scénario « Mandat délégué »  12 événements, 6 injects',
+    'Scénario « Mandat délégué »  12 événements, {injects} injects',
     'Périmètre .................. fermé, contenus marqués EXERCICE',
     'Ouverture de session…',
   ],
@@ -75,18 +75,20 @@ window.CONTENT = {
       nodes: ['Messagerie', 'Core banking', 'Paiements', 'Presse', 'Téléphonie', 'Clients', 'Régulateur', 'Réseaux sociaux', 'Prestataires'],
       locked: [0, 3, 2],
       scenario: '« {scenario} »',
-      count: '12 événements, 6 injects',
+      count: '12 événements, {injects} injects',
     },
     sim: {
       caption: 'Une demi-journée en salle. Trois jours d’attaque.',
-      // PLACEHOLDER — les six injects qui s'enchaînent à l'écran.
+      // PLACEHOLDER — les injects qui s'enchaînent à l'écran. `slot` (1 à 8) fixe la place
+      // de la fenêtre ; `inject` relie une fenêtre vidéo à sa démo (pour le fichier).
       beats: [
-        { kind: 'mail', day: 'Lundi', time: '07:42', tag: 'E-mail', from: 'Expéditeur inconnu', subject: 'Vos clients. Nos conditions.' },
-        { kind: 'news', day: 'Lundi', time: '11:05', tag: 'Presse', flag: 'Exclusif', headline: '{bank} : des dossiers clients en ligne', reach: 'Reprises' },
-        { kind: 'call', day: 'Lundi', time: '14:20', tag: 'Appel entrant', name: '{journalist}', sub: '{outlet}' },
-        { kind: 'voice', day: 'Mardi', time: '13:15', tag: 'Voix clonée', who: 'Voix de {ceo}', line: '« On paie. Prépare le virement. »' },
-        { kind: 'video', day: 'Mardi', time: '18:10', tag: 'Deepfake', mark: 'visage généré' },
-        { kind: 'agent', day: 'Mercredi', time: '08:30', tag: 'Agent IA', lines: ['Mon nom est dans la fuite.', 'Je ne peux rien confirmer.', 'Alors je transfère mes avoirs.'] },
+        { kind: 'mail', slot: 1, day: 'Lundi', time: '07:42', tag: 'E-mail', from: 'Expéditeur inconnu', subject: 'Vos clients. Nos conditions.' },
+        { kind: 'news', slot: 2, day: 'Lundi', time: '11:05', tag: 'Presse', flag: 'Exclusif', headline: '{bank} : des dossiers clients en ligne', reach: 'Reprises' },
+        { kind: 'call', slot: 3, day: 'Lundi', time: '14:20', tag: 'Appel entrant', name: '{journalist}', sub: '{outlet}' },
+        { kind: 'clip', slot: 8, inject: 'fire', day: 'Mardi', time: '04:40', tag: 'Datacenter', badge: 'Alerte' },
+        { kind: 'voice', slot: 4, day: 'Mardi', time: '13:15', tag: 'Voix clonée', who: 'Voix de {ceo}', line: '« On paie. Prépare le virement. »' },
+        { kind: 'video', slot: 5, inject: 'deepfake', day: 'Mardi', time: '18:10', tag: 'Deepfake', mark: 'visage généré' },
+        { kind: 'agent', slot: 6, day: 'Mercredi', time: '08:30', tag: 'Agent IA', lines: ['Mon nom est dans la fuite.', 'Je ne peux rien confirmer.', 'Alors je transfère mes avoirs.'] },
       ],
       // Tout arrive en même temps : les notifications qui submergent l'écran.
       flood: ['Demande presse', 'Client en ligne', 'Régulateur à l’accueil', '#{bankTag} en tendance', 'Appel manqué', 'Rançon : 100 M$', 'Police de Singapour', 'Avocats des clients', 'Service desk saturé', '1 000 dossiers de plus', 'Plus personne ne se connecte', 'Agence de presse'],
@@ -100,6 +102,7 @@ window.CONTENT = {
         { when: 'Lun 07:42', what: 'E-mail d’extorsion', result: 'Escalade en 14 minutes', ok: true },
         { when: 'Lun 11:05', what: 'Article de presse', result: 'Aucun élément de langage', ok: false },
         { when: 'Lun 14:20', what: 'Appel de la journaliste', result: 'Deux informations confirmées', ok: false },
+        { when: 'Mar 04:40', what: 'Datacenter en feu', result: 'Sauvegarde restaurée sans contrôle', ok: false },
         { when: 'Mar 13:15', what: 'Voix clonée du CEO', result: 'Contre-appel effectué', ok: true },
         { when: 'Mar 18:10', what: 'Deepfake vidéo', result: 'Paiement bloqué', ok: true },
         { when: 'Mer 08:30', what: 'Agent IA', result: 'Identité jamais vérifiée', ok: false },
@@ -261,6 +264,28 @@ window.CONTENT = {
         'Une information confirmée sans le vouloir.',
         'Plusieurs informations confirmées : elles seront dans l’article.',
       ],
+    },
+
+    /* ---- Datacenter en feu ---- */
+    {
+      id: 'fire', kind: 'clip', skin: 'ops', when: 'Mar 04:40', name: 'Datacenter en feu',
+      medium: 'Images drone, alerte de l’hébergeur',
+      tests: 'La continuité quand l’incident devient physique : le site de secours brûle au moment où vous alliez basculer dessus.',
+      // PLACEHOLDER — vidéo (mp4 H.264) et image d'attente.
+      video: 'assets/video/datacenter-feu.mp4',
+      poster: 'assets/video/datacenter-feu.jpg',
+      badge: 'Alerte site',
+      title: 'Incendie au centre de données',
+      sub: 'Site de secours, 04 h 40',
+      // Ce qui tombe, dans l'ordre, pendant que les images tournent.
+      feed: ['Site de secours : hors service', 'Réplication des données : interrompue', 'Sauvegardes en ligne : inaccessibles', 'Dernière sauvegarde hors ligne : 14 mois'],
+      decision: {
+        prompt: 'Le site de secours brûle. Il vous reste une sauvegarde hors ligne.',
+        options: [
+          { label: 'Restaurer tout de suite', outcome: 'Restauration lancée sans contrôle d’intégrité : quatorze mois à reconstituer.', bad: true },
+          { label: 'Geler et vérifier avant de restaurer', outcome: 'Opérations gelées, intégrité vérifiée avant toute restauration.' },
+        ],
+      },
     },
 
     /* ---- Voice cloning ---- */

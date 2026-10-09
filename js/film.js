@@ -117,7 +117,7 @@ window.Film = (() => {
     });
     await r.wait(880);
     core.classList.add('armed');
-    $('b', core).textContent = fill(P.scenario); $('small', core).textContent = P.count;
+    $('b', core).textContent = fill(P.scenario); $('small', core).textContent = fill(P.count);
     A(core, { transform: [CORE + ' scale(1.25)', CORE + ' scale(1)'] }, 700);
     Scene.pulse(.8); Sound.login(); setProg('prep', 1);
     await r.wait(1900);
@@ -126,7 +126,9 @@ window.Film = (() => {
   /* ======================================================================
      Simulation : six injects s'enchaînent, puis tout arrive en même temps
      ====================================================================== */
-  const ROT = [-1.6, 1.1, 2.2, 1.3, -2.2, -1.2];
+  // Inclinaison de chaque emplacement de fenêtre (slot 1 à 8, positions dans film.css).
+  const ROT = [-1.6, 1.1, 2.2, 1.3, -2.2, -1.2, -1, 1.6];
+  const media = b => C.injects.find(x => x.id === b.inject) || {};
   // Chaque inject : le contenu de sa fenêtre, puis ce qui s'y anime.
   const beatsUI = {
     mail: {
@@ -159,11 +161,14 @@ window.Film = (() => {
         rise($('.fx-quote', w), 900);
       },
     },
+    // Deepfake : la vidéo de la démo, avec le cadre de suivi du visage.
     video: {
-      html: b => {
-        const d = C.injects.find(x => x.id === 'deepfake') || {};
-        return `${d.video ? `<video muted loop playsinline preload="auto" src="${esc(d.video)}"${d.poster ? ` poster="${esc(d.poster)}"` : ''}></video>` : ''}<span class="fx-face"><em>${esc(b.mark)}</em></span>`;
-      },
+      html: b => { const d = media(b); return `${d.video ? `<video muted loop playsinline preload="auto" src="${esc(d.video)}"${d.poster ? ` poster="${esc(d.poster)}"` : ''}></video>` : ''}<span class="fx-face"><em>${esc(b.mark)}</em></span>`; },
+      start(r, w) { const v = $('video', w); if (v) v.play().catch(() => {}); },
+    },
+    // Images « en direct » : manifestation, incendie…
+    clip: {
+      html: b => { const d = media(b); return `${d.video ? `<video muted loop playsinline preload="auto" src="${esc(d.video)}"${d.poster ? ` poster="${esc(d.poster)}"` : ''}></video>` : ''}<span class="fx-live">${esc(b.badge)}</span>`; },
       start(r, w) { const v = $('video', w); if (v) v.play().catch(() => {}); },
     },
     agent: {
@@ -178,13 +183,13 @@ window.Film = (() => {
     },
   };
   function spawn(r, i, b) {
-    const ui = beatsUI[b.kind];
-    const w = add('div', `fx-win fx-${b.kind} fx-w${i + 1}`, `<header><time>${esc(b.day.slice(0, 3) + ' ' + b.time)}</time><b>${esc(b.tag)}</b></header>${ui.html(b)}`);
-    w.style.setProperty('--rot', ROT[i] + 'deg'); w.style.setProperty('--i', i);
+    const ui = beatsUI[b.kind], slot = b.slot || i + 1, rot = ROT[slot - 1] || 0;
+    const w = add('div', `fx-win fx-${b.kind} fx-w${slot}`, `<header><time>${esc(b.day.slice(0, 3) + ' ' + b.time)}</time><b>${esc(b.tag)}</b></header>${ui.html(b)}`);
+    w.style.setProperty('--rot', rot + 'deg'); w.style.setProperty('--i', i);
     A(w, [
       { opacity: 0, transform: `perspective(60em) translateZ(-42em) rotateY(${i % 2 ? 30 : -30}deg) rotateX(12deg)` },
       { opacity: 1, transform: 'perspective(60em) translateZ(4em) rotateY(0deg) rotateX(0deg)', offset: .68 },
-      { opacity: 1, transform: `perspective(60em) translateZ(0) rotate(${ROT[i]}deg)` },
+      { opacity: 1, transform: `perspective(60em) translateZ(0) rotate(${rot}deg)` },
     ], { duration: 950, fill: 'backwards' });
     ui.start(r, w, b);
     return w;
@@ -214,7 +219,7 @@ window.Film = (() => {
       spawn(r, i, b);
       Scene.pulse(.75); if (b.kind !== 'call') Sound.notify();
       setProg('sim', (i + 1) / (n + 2));
-      await r.wait(b.kind === 'call' ? 2900 : 2500);
+      await r.wait(b.kind === 'call' ? 2700 : 2150);
     }
 
     // Tout arrive en même temps : les fenêtres se rallument, les alertes submergent l'écran.

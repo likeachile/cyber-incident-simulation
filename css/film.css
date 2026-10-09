@@ -66,12 +66,15 @@
 .fx-win header { display: flex; gap: .8em; align-items: baseline; font-family: var(--mono); font-size: .7em; color: var(--dim); margin-bottom: .7em; }
 .fx-win header time { color: var(--red); }
 .fx-win header b { font-weight: 500; }
-.fx-w1 { left: 4.5%; top: 23%; width: 33%; }
-.fx-w2 { left: 27%; top: 39%; width: 38%; }
-.fx-w3 { left: 67%; top: 5%; width: 26%; }
-.fx-w4 { left: 6%; top: 63%; width: 36%; }
-.fx-w5 { left: 77%; top: 31%; width: 17.5%; }
-.fx-w6 { left: 46%; top: 64%; width: 29%; }
+/* Emplacements 1 à 8 (content.js → film.sim.beats[].slot) */
+.fx-w1 { left: 4.5%; top: 24%; width: 31%; }
+.fx-w2 { left: 22%; top: 43%; width: 31%; }
+.fx-w3 { left: 67%; top: 5%; width: 25%; }
+.fx-w4 { left: 5%; top: 66%; width: 35%; }
+.fx-w5 { left: 79%; top: 31%; width: 17.5%; }
+.fx-w6 { left: 44%; top: 67%; width: 29%; }
+.fx-w7 { left: 34%; top: 4%; width: 30%; }
+.fx-w8 { left: 53%; top: 37%; width: 25%; }
 
 .fx-from { font-size: .8em; color: var(--dim); }
 .fx-subj { font-size: 1.3em; font-weight: 600; min-height: 1.45em; }
@@ -101,9 +104,12 @@
 @keyframes fx-breathe { 50% { transform: scaleY(.45); } }
 .fx-quote { font-family: var(--display); font-style: italic; font-size: 1.3em; }
 
-.fx-video { padding: 0; overflow: hidden; aspect-ratio: 9 / 16; border-radius: .9em; background: #05070c; }
-.fx-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
-.fx-video header { position: absolute; left: 0; right: 0; top: 0; z-index: 2; margin: 0; padding: .8em .9em 1.6em; background: linear-gradient(rgba(0, 0, 0, .75), transparent); color: #fff; }
+.fx-video, .fx-clip { padding: 0; overflow: hidden; aspect-ratio: 9 / 16; border-radius: .9em; background: #05070c; }
+.fx-clip { aspect-ratio: 16 / 9; border-radius: .45em; }
+.fx-video video, .fx-clip video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fx-live { position: absolute; left: .8em; bottom: .7em; z-index: 2; background: var(--red); color: #fff; font-size: .68em; font-weight: 600; padding: .15em .55em; display: inline-flex; align-items: center; gap: .45em; }
+.fx-live::before { content: ""; width: .5em; height: .5em; border-radius: 50%; background: #fff; animation: live 1.2s ease-in-out infinite; }
+.fx-video header, .fx-clip header { position: absolute; left: 0; right: 0; top: 0; z-index: 2; margin: 0; padding: .8em .9em 1.6em; background: linear-gradient(rgba(0, 0, 0, .75), transparent); color: #fff; }
 .fx-video::after { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: var(--blue); box-shadow: 0 0 1.2em .2em var(--blue); animation: fx-scan 2.1s linear infinite; }
 @keyframes fx-scan { to { transform: translateY(32em); } }
 .fx-face { position: absolute; left: 20%; top: 24%; width: 60%; height: 36%; border: 1px solid rgba(75, 132, 255, .85); border-radius: .2em; animation: fx-track 2.6s ease-in-out infinite; }
@@ -118,7 +124,7 @@
 
 /* Restitution : le relevé */
 .fx-ledger { position: absolute; left: 8%; right: 8%; top: 20%; margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line-2); }
-.fx-ledger li { display: grid; grid-template-columns: 7em minmax(0, 1fr) minmax(0, 1.15fr) 1.6em; gap: 0 1.4em; align-items: center; padding: .92em 0; border-bottom: 1px solid var(--line); font-size: 1.06em; }
+.fx-ledger li { display: grid; grid-template-columns: 7em minmax(0, 1fr) minmax(0, 1.15fr) 1.6em; gap: 0 1.4em; align-items: center; padding: .68em 0; border-bottom: 1px solid var(--line); font-size: 1.04em; }
 .fx-ledger time { font-family: var(--mono); font-size: .8em; color: var(--dim); }
 .fx-ledger b { font-weight: 600; font-size: 1.05em; }
 .fx-ledger span { color: #cfd5de; }
@@ -141,11 +147,11 @@
   .fx-node span { font-size: .78em; }
   .fx-core b { font-size: 1.1em; }
   .fx-time { font-size: 2.6em; }
-  .fx-win { left: 7%; width: 86%; top: calc(19% + var(--i) * 6.5%); }
+  .fx-win { left: 7%; width: 86%; top: calc(18% + var(--i) * 5.2%); }
   .fx-w3 { left: 16%; width: 68%; }
-  .fx-w5 { left: 29%; width: 42%; top: 30%; }
+  .fx-w5 { left: 29%; width: 42%; }
   .fx-ledger { left: 6%; right: 6%; top: 17%; }
-  .fx-ledger li { grid-template-columns: 5.4em minmax(0, 1fr) 1.4em; gap: 0 .7em; padding: .5em 0; font-size: .95em; }
+  .fx-ledger li { grid-template-columns: 5.4em minmax(0, 1fr) 1.4em; gap: 0 .7em; padding: .36em 0; font-size: .92em; }
   .fx-ledger b, .fx-ledger span { grid-column: 2; }
   .fx-ledger svg { grid-column: 3; grid-row: 1 / span 2; }
   .fx-cap-top { left: 6%; top: 5%; }

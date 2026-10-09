@@ -15,7 +15,7 @@ window.UI = (() => {
   function fill(str) {
     const c = C.cast, map = {
       bank, bankTag: tag(bank), ceo: c.ceo, ceoLast: c.ceo.split(' ').slice(-1)[0], cfo: c.cfo, ciso: c.ciso,
-      comms: c.comms, journalist: c.journalist, outlet: c.outlet, scenario: C.brand.scenario,
+      comms: c.comms, journalist: c.journalist, outlet: c.outlet, scenario: C.brand.scenario, injects: C.injects.length,
     };
     return String(str).replace(/\{(\w+)\}/g, (m, k) => k in map ? map[k] : m);
   }
@@ -42,7 +42,7 @@ window.UI = (() => {
 })();
 
 window.OS = (() => {
-  const { C, esc, $, $$, el, reduced } = UI;
+  const { C, esc, $, $$, el, f, reduced } = UI;
   const os = $('#os'), views = $('#views'), nav = $('#nav');
   let skipping = false, current = null;
   const wait = ms => new Promise(r => skipping ? r() : setTimeout(r, reduced ? Math.min(ms, 60) : ms));
@@ -54,7 +54,7 @@ window.OS = (() => {
     Scene.screenOn(); Scene.setMood('boot'); Sound.boot();
     await wait(650);
     for (let i = 0; i < C.bios.length; i++) {
-      const line = el('span', i === 0 ? 'l0' : '', esc(C.bios[i]).replace(/(OK|établi|déverrouillé)$/, '<span class="ok">$1</span>') + (i ? '\n' : ''));
+      const line = el('span', i === 0 ? 'l0' : '', f(C.bios[i]).replace(/(OK|établi|déverrouillé)$/, '<span class="ok">$1</span>') + (i ? '\n' : ''));
       bios.append(line); Sound.key();
       await wait(i === 0 ? 420 : 150 + Math.random() * 190);
     }

@@ -562,6 +562,63 @@ window.Injects = (() => {
     };
   })();
 
+  /* ======================================================================
+     Images « en direct » : une vidéo plein cadre, habillée en chaîne d'info
+     (skin tv) ou en alerte d'exploitation (skin ops), et ce qui s'ensuit.
+     Sert à tout inject déclaré avec kind: 'clip' dans content.js.
+     ====================================================================== */
+  mods.clip = (() => {
+    let ctl = null;
+    return {
+      mood: 'idle',
+      render(host, data) {
+        const media = data.video
+          ? `<video playsinline loop preload="metadata" src="${esc(data.video)}"${data.poster ? ` poster="${esc(data.poster)}"` : ''}></video>`
+          : '<p class="cl-missing">Vidéo à fournir</p>';
+        const ticker = data.ticker ? `<div class="cl-ticker"><p>${data.ticker.map(t => `<span>${f(t)}</span>`).join('')}</p></div>` : '';
+        host.innerHTML = `<div class="cl cl-${esc(data.skin || 'tv')}">
+          <div class="cl-screen">
+            ${media}
+            <span class="cl-badge">${esc(data.badge)}</span>
+            <div class="cl-third"><b>${f(data.title)}</b><span>${f(data.sub)}</span></div>
+            ${ticker}
+            <button type="button" class="cl-play" aria-label="Lire la vidéo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg></button>
+          </div>
+          <ol class="cl-feed">${data.feed.map(x => `<li>${f(x)}</li>`).join('')}</ol>
+          <div class="decide" hidden></div>
+        </div>`;
+        const video = $('video', host), wrap = $('.cl', host);
+        const mine = ctl = {
+          play(fromStart) {
+            wrap.classList.add('playing');
+            if (!video) return;
+            if (fromStart) { try { video.currentTime = 0; } catch (e) { /* métadonnées pas encore là */ } }
+            video.muted = !Sound.enabled;
+            video.play().catch(() => { video.muted = true; video.play().catch(() => {}); });
+          },
+          pause() { wrap.classList.remove('playing'); if (video) video.pause(); },
+        };
+        $('.cl-play', host).addEventListener('click', () => mine.play());
+        if (video) video.addEventListener('click', () => video.paused ? mine.play() : mine.pause());
+        return () => { mine.pause(); if (ctl === mine) ctl = null; Scene.setMood('idle'); };
+      },
+      async launch(r, data, host) {
+        const c = ctl, wrap = $('.cl', host), items = $$('.cl-feed li', host);
+        r.onStop(() => { c.pause(); Scene.setMood('idle'); });
+        Scene.setMood(data.skin === 'ops' ? 'alert' : 'video'); Sound.alert();
+        wrap.classList.add('on-air'); c.play(true);
+        log(`${active.when.slice(4)} — ${fill(data.title)}.`, 'bad');
+        for (const item of items) {
+          await r.wait(1700);
+          item.classList.add('hot'); Sound.notify(); Scene.pulse(.6); log(item.textContent, 'bad');
+        }
+        await r.wait(1500);
+        await decide(r, $('.decide', host), data.decision);
+        Scene.setMood('idle');
+      },
+    };
+  })();
+
   /* ---------- Châssis de la vue ---------- */
   function render(view) {
     root = view;
@@ -570,7 +627,7 @@ window.Injects = (() => {
       <aside class="inj-list">
         <label class="inj-target">${esc(I.targetLabel)}<input id="bankInput" value="${esc(UI.bank)}" maxlength="48" autocomplete="off" spellcheck="false"><small>${esc(I.targetHint)}</small></label>
         <div class="inj-tabs" role="tablist" aria-label="${esc(I.title)}">${C.injects.map(x => `
-          <button type="button" role="tab" data-id="${x.id}"><time>${esc(x.when)}</time><b>${esc(x.name)}</b><span>${esc(x.medium)}</span></button>`).join('')}</div>
+          <button type="button" role="tab" data-id="${x.id}"><time>${esc(x.when)}</time><b>${esc(x.name)}</b></button>`).join('')}</div>
       </aside>
       <section class="inj-stage">
         <header class="inj-stage-head"><span id="stageMedium"></span><span class="stamp">${esc(I.stamp)}</span></header>
@@ -591,6 +648,8 @@ window.Injects = (() => {
       deb = setTimeout(() => { if (active) select(active.id); }, 350);
     });
   }
+  // Un inject choisit son module par `kind` (ex. 'clip'), sinon par son id.
+  const modOf = x => mods[x.kind || x.id];
   function stop() {
     if (run) { run.stop(); run = null; }
     busy = false; Sound.stopRing(); Sound.hush();
@@ -605,8 +664,8 @@ window.Injects = (() => {
     launchBtn.textContent = I.launch; launchBtn.classList.remove('again');
     logEl.innerHTML = `<li class="empty">${esc(I.logEmpty)}</li>`;
     body.className = 'inj-stage-body is-' + active.id; body.scrollTop = 0;
-    dispose = mods[active.id].render(body, active) || null;
-    Scene.setMood(mods[active.id].mood); Scene.phone({ mode: 'off' });
+    dispose = modOf(active).render(body, active) || null;
+    Scene.setMood(modOf(active).mood); Scene.phone({ mode: 'off' });
     try { history.replaceState(null, '', '#injects/' + active.id); } catch (e) { /* file:// */ }
   }
   async function launch() {
@@ -617,7 +676,7 @@ window.Injects = (() => {
     launchBtn.textContent = I.replay; launchBtn.classList.add('again');
     OS.glitch(); Sound.launch(); Scene.pulse(1);
     log(`Inject lancé : ${active.name}.`);
-    await mods[id].launch(r, active, body);
+    await modOf(active).launch(r, active, body);
     if (run === r) { busy = false; }
   }
 

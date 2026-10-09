@@ -61,15 +61,19 @@ window.Scene = (() => {
   function makeCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
   function canvasTexture(c) { const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding; t.anisotropy = 4; return t; }
 
-  // Plaque à coins arrondis, w × h dans le plan XY, épaisseur t vers +Z.
-  function slab(w, h, t, r, bevel) {
+  // Rectangle à coins arrondis, centré, dans le plan XY.
+  function roundedRect(w, h, r) {
     const s = new THREE.Shape(), x = -w / 2, y = -h / 2;
     s.moveTo(x + r, y);
     s.lineTo(x + w - r, y); s.absarc(x + w - r, y + r, r, -Math.PI / 2, 0, false);
     s.lineTo(x + w, y + h - r); s.absarc(x + w - r, y + h - r, r, 0, Math.PI / 2, false);
     s.lineTo(x + r, y + h); s.absarc(x + r, y + h - r, r, Math.PI / 2, Math.PI, false);
     s.lineTo(x, y + r); s.absarc(x + r, y + r, r, Math.PI, Math.PI * 1.5, false);
-    const g = new THREE.ExtrudeGeometry(s, {
+    return s;
+  }
+  // Plaque à coins arrondis, w × h dans le plan XY, épaisseur t vers +Z.
+  function slab(w, h, t, r, bevel) {
+    const g = new THREE.ExtrudeGeometry(roundedRect(w, h, r), {
       depth: t - 2 * bevel, bevelEnabled: true, bevelThickness: bevel, bevelSize: bevel,
       bevelOffset: -bevel, bevelSegments: 3, curveSegments: 10,
     });
@@ -382,7 +386,8 @@ window.Scene = (() => {
   lid.position.set(0, BASE_TOP + .004, -1.05); lid.rotation.x = LID_CLOSED; laptop.add(lid);
   const lidShell = new THREE.Mesh(slab(3.2, 2.1, .06, .15, .012), alu);
   lidShell.geometry.translate(0, 1.05, -.06); lid.add(lidShell);
-  const glass = new THREE.Mesh(new THREE.PlaneGeometry(3.14, 2.04), new THREE.MeshStandardMaterial({ color: 0x020203, roughness: .12, metalness: 0, envMapIntensity: .9 }));
+  // Même courbure que le capot (rayon .15, retrait .03) : la dalle ne dépasse plus dans les angles.
+  const glass = new THREE.Mesh(new THREE.ShapeGeometry(roundedRect(3.14, 2.04, .12), 10), new THREE.MeshStandardMaterial({ color: 0x020203, roughness: .12, metalness: 0, envMapIntensity: .9 }));
   glass.position.set(0, 1.05, .0015); lid.add(glass);
   const panel = new THREE.Mesh(new THREE.PlaneGeometry(SCR.w, SCR.h), new THREE.MeshBasicMaterial({ color: 0x010102, toneMapped: false }));
   panel.position.set(0, SCR.y0 + SCR.h / 2, .003); lid.add(panel);

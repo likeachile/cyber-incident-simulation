@@ -14,7 +14,6 @@
 .inj-tabs button { text-align: left; background: none; border: 0; border-left: 2px solid var(--line); padding: .55em .5em .6em .85em; display: grid; gap: .05em; color: var(--dim); transition: background .15s, border-color .15s; }
 .inj-tabs button time { font-family: var(--mono); font-size: .7em; color: var(--faint); }
 .inj-tabs button b { font-weight: 600; font-size: 1em; color: #cfd5de; }
-.inj-tabs button span { font-size: .8em; color: var(--faint); }
 .inj-tabs button:hover { background: var(--coal); }
 .inj-tabs button[aria-selected="true"] { border-left-color: var(--blue); background: var(--graph); }
 .inj-tabs button[aria-selected="true"] b { color: #fff; }
@@ -233,6 +232,36 @@
 .df-clues li.on time { color: var(--red); }
 .df .decide { margin-top: auto; border: 1px solid var(--line-2); border-radius: 2px; }
 
+/* ---------- Images en direct (manifestation, incendie…) ---------- */
+.cl { display: flex; flex-direction: column; height: 100%; }
+.cl-screen { position: relative; flex: 1 1 auto; min-height: 12em; overflow: hidden; background: #000; }
+.cl-screen video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; cursor: pointer; }
+.cl-missing { position: absolute; inset: 0; display: grid; place-items: center; font-family: var(--mono); font-size: .8em; color: var(--dim); }
+.cl-badge { position: absolute; left: 1em; top: 1em; background: var(--red); color: #fff; font-size: .76em; font-weight: 650; padding: .2em .65em; display: inline-flex; align-items: center; gap: .5em; }
+.cl-badge::before { content: ""; width: .5em; height: .5em; border-radius: 50%; background: #fff; animation: live 1.2s ease-in-out infinite; }
+.cl-third { position: absolute; left: 0; bottom: 2.6em; display: grid; max-width: 80%; }
+.cl-third b { background: #f4f4f2; color: #101216; font-size: 1.25em; font-weight: 700; padding: .3em .9em .32em 1em; border-left: .4em solid var(--red); }
+.cl-third span { justify-self: start; background: #101826; color: #dfe5ee; font-size: .82em; padding: .22em .9em .25em 1.5em; }
+.cl.on-air .cl-third { animation: third-in .6s cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes third-in { from { transform: translateX(-105%); } }
+.cl-ticker { position: absolute; left: 0; right: 0; bottom: 0; height: 2.1em; background: rgba(8, 12, 20, .92); overflow: hidden; display: flex; align-items: center; border-top: 2px solid var(--red); }
+.cl-ticker p { white-space: nowrap; padding-left: 100%; font-size: .82em; color: #e6e9ee; }
+.cl-ticker span + span::before { content: ""; display: inline-block; width: .45em; height: .45em; background: var(--red); margin: 0 1.4em .1em; }
+.cl.playing .cl-ticker p { animation: ticker 22s linear infinite; }
+@keyframes ticker { to { transform: translateX(-100%); } }
+.cl-play { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); width: 4em; height: 4em; border-radius: 50%; border: 0; background: rgba(4, 6, 10, .7); display: grid; place-items: center; backdrop-filter: blur(4px); }
+.cl-play svg { width: 1.7em; height: 1.7em; fill: #fff; margin-left: .2em; }
+.cl.playing .cl-play { display: none; }
+/* Variante exploitation : pas de bandeau télé, une étiquette d'alerte */
+.cl-ops .cl-third { left: 1em; bottom: 1em; border: 1px solid var(--red); background: rgba(4, 6, 10, .82); padding: .5em .8em; font-family: var(--mono); gap: .1em; }
+.cl-ops .cl-third b { background: none; color: #fff; border: 0; padding: 0; font-size: .95em; font-weight: 500; }
+.cl-ops .cl-third span { background: none; color: #ff8d85; padding: 0; font-size: .76em; }
+.cl-feed { flex: none; margin: 0; padding: .9em 1.1em; list-style: none; display: grid; grid-template-columns: 1fr 1fr; gap: .45em 1.6em; font-size: .9em; }
+.cl-feed li { display: flex; gap: .65em; align-items: baseline; color: var(--faint); transition: color .3s; }
+.cl-feed li::before { content: ""; width: .5em; height: .5em; border-radius: 50%; border: 1px solid currentColor; flex: none; transition: background .3s, box-shadow .3s; }
+.cl-feed li.hot { color: #fff; }
+.cl-feed li.hot::before { background: var(--red); border-color: var(--red); box-shadow: 0 0 .7em var(--red); }
+
 /* ---------- Agent IA ---------- */
 .ag { display: grid; grid-template-columns: 15em minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr); height: 100%; }
 .ag-roles { grid-column: 1 / -1; display: flex; gap: .2em; padding: .5em .6em 0; border-bottom: 1px solid var(--line); overflow-x: auto; scrollbar-width: none; }
@@ -269,7 +298,6 @@
   .inj { grid-template-columns: minmax(0, 1fr); height: auto; }
   .inj-tabs { grid-auto-flow: column; grid-auto-columns: max-content; }
   .inj-tabs button { border-left: 0; border-bottom: 2px solid var(--line); padding: .5em .8em; }
-  .inj-tabs button span { display: none; }
   .inj-tabs button[aria-selected="true"] { border-bottom-color: var(--blue); }
   .inj-target small { display: none; }
   .inj-stage { height: 34em; }
@@ -285,6 +313,8 @@
   .vc-steps, .vc-text { padding-left: 0; }
   .df { grid-template-columns: 1fr; height: auto; }
   .df-phone { height: 24em; justify-self: center; }
+  .cl-feed { grid-template-columns: 1fr; }
+  .cl-third b { font-size: 1.05em; }
   .ag { grid-template-columns: 1fr; grid-template-rows: auto auto minmax(16em, 1fr); height: auto; min-height: 100%; }
   .ag-ctx { border-right: 0; border-bottom: 1px solid var(--line); max-height: 8.5em; }
   .inj-log { min-height: 8em; }

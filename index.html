@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Régie — simulation d’incident cyber pour banques privées</title>
+<meta name="description" content="Simulation d’incident cyber pour les banques privées genevoises : votre comité de crise reçoit les appels, messages, articles, voix clonées et vidéos qu’il recevrait vraiment.">
+<meta name="theme-color" content="#020308">
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="css/fonts.css">
+<link rel="stylesheet" href="css/main.css">
+<link rel="stylesheet" href="css/injects.css">
+</head>
+<body>
+
+<!-- La pièce : portable, bureau, rade de Genève sous la pluie (js/scene.js) -->
+<canvas id="gl" aria-hidden="true"></canvas>
+
+<!-- L'écran du portable. Tout le site vit ici ; scene.js le plaque sur la dalle 3D. -->
+<div id="stage">
+  <div id="screen" style="visibility:hidden">
+    <div class="os" id="os" data-state="off">
+      <div class="bios" id="bios" aria-hidden="true"></div>
+
+      <div class="login" id="login" aria-hidden="true">
+        <div class="login-ring"><span id="loginMark"></span></div>
+        <div class="login-user">animateur.régie</div>
+        <div class="login-pass" id="loginPass"></div>
+        <div class="login-greet" id="loginGreet"></div>
+      </div>
+
+      <div class="desk" id="desk">
+        <header class="bar">
+          <div class="bar-brand">
+            <span class="mark" aria-hidden="true"></span>
+            <span class="bar-name" id="barName"></span>
+            <span class="bar-scn" id="barScn"></span>
+          </div>
+          <nav class="bar-nav" id="nav" aria-label="Sections"></nav>
+          <div class="bar-right">
+            <span class="xclock" title="Horloge de l’exercice"><i class="live" aria-hidden="true"></i><span id="xclock">Lundi 07:30</span></span>
+            <button class="ico" id="btnSound" type="button" aria-pressed="false" title="Son">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 6v12l-4.5-3.5H4z"/><path class="waves" d="M15.5 9a4.5 4.5 0 0 1 0 6M18 6.5a8 8 0 0 1 0 11"/><path class="mute" d="M15.5 9.5l5 5m0-5l-5 5"/></svg>
+              <span class="sr">Son</span>
+            </button>
+            <button class="ico" id="btnBack" type="button" title="Reculer : vue du bureau (Échap)">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="5" width="17" height="11.5" rx="1.5"/><path d="M1.5 19.5h21"/></svg>
+              <span class="sr">Reculer vers la vue du bureau</span>
+            </button>
+          </div>
+        </header>
+        <main class="views" id="views"></main>
+        <footer class="feed"><span class="feed-line" id="feed"></span><span class="feed-right">Périmètre fermé, contenus marqués « exercice »</span></footer>
+      </div>
+
+      <div class="toasts" id="toasts" aria-live="polite"></div>
+    </div>
+    <div class="glass" aria-hidden="true"></div>
+  </div>
+</div>
+
+<!-- Hors écran : allumage, aides, retour portail -->
+<div class="hud">
+  <section class="power" id="power">
+    <h1 id="powerLine"></h1>
+    <p id="powerSub"></p>
+    <div class="power-actions">
+      <button class="btn-on" id="btnOn" type="button"></button>
+      <button class="btn-quiet" id="btnSilent" type="button"></button>
+    </div>
+  </section>
+  <p class="hint" id="hint" hidden></p>
+  <button class="skip" id="skip" type="button" hidden>Passer le démarrage</button>
+  <!-- Affiché uniquement quand le site est servi par le Pi (voir main.js) -->
+  <a class="portal" id="portal" href="http://192.168.1.38" hidden>⊞ Portail</a>
+</div>
+
+<noscript><p class="noscript">Ce site est une expérience interactive : activez JavaScript pour ouvrir le poste.</p></noscript>
+
+<script src="vendor/three.min.js"></script>
+<script src="js/content.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/os.js"></script>
+<script src="js/injects.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

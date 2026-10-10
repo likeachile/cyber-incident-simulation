@@ -30,6 +30,7 @@ window.Injects = (() => {
   }
   const initials = name => name.replace(/[^A-Za-zÀ-ÿ ]/g, '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase() || '?';
   const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+  const hms = s => [s / 3600, s / 60 % 60, s % 60].map(v => String(Math.floor(v)).padStart(2, '0')).join(':');
 
   /* ---------- Horloge de lecture simulée (tant qu'aucun fichier média n'est fourni) ---------- */
   function simClock(dur, onTick, onEnd) {
@@ -558,6 +559,137 @@ window.Injects = (() => {
         await start(host, data, true);
         log('Premier contact établi. À vous de répondre.');
         const input = $('.ag-form input', host); if (input && Scene.docked) input.focus({ preventScroll: true });
+      },
+    };
+  })();
+
+  /* ======================================================================
+     Réseaux sociaux : le fil s'emballe, un faux compte répond aux clients
+     ====================================================================== */
+  mods.social = {
+    mood: 'idle',
+    render(host, data) {
+      const post = p => `<li class="so-post${p.fake ? ' fake' : ''}${p.victim ? ' victim' : ''}">
+        <span class="msg-av">${esc(initials(fill(p.who)))}</span>
+        <div><p class="so-who"><b>${f(p.who)}</b><span>${f(p.handle)}</span>${p.fake ? `<em>${esc(data.fakeLabel)}</em>` : ''}</p><p class="so-text">${f(p.text)}</p></div></li>`;
+      host.innerHTML = `<div class="so">
+        <header class="so-head"><b>${f(data.tag)}</b><span class="so-count" hidden><b>0</b> ${esc(data.countLabel)}</span></header>
+        <ol class="so-feed">${data.posts.map(post).join('')}</ol>
+        <div class="decide" hidden></div></div>`;
+    },
+    async launch(r, data, host) {
+      const items = $$('.so-post', host), feed = $('.so-feed', host), count = $('.so-count', host), out = $('b', count);
+      r.onStop(() => Scene.phone({ mode: 'off' }));
+      items.forEach(li => { li.hidden = true; });
+      count.hidden = false;
+      let n = 0, rate = 3;
+      r.every(120, () => { n += Math.ceil(Math.random() * rate); out.textContent = n.toLocaleString('fr-CH'); });
+      Scene.phone({ mode: 'msg', app: 'Réseaux sociaux', title: fill(data.tag), sub: 'En tendance à Genève', clock: active.when.slice(4) });
+      for (let i = 0; i < items.length; i++) {
+        await r.wait(i ? 1500 : 600);
+        const p = data.posts[i], li = items[i];
+        li.hidden = false; li.classList.add('in'); feed.scrollTop = feed.scrollHeight; Sound.message(); rate *= 2.2;
+        if (p.fake) {
+          await r.wait(700);
+          li.classList.add('flag'); Scene.pulse(.9); Sound.alert(); log(`Faux compte actif : ${fill(p.handle)}`, 'bad');
+        } else if (p.victim) { Scene.pulse(.6); log('Un client suit les consignes du faux compte.', 'bad'); }
+        else log(`Publication de ${fill(p.handle)}, reprise en chaîne.`);
+      }
+      await r.wait(1100);
+      await decide(r, $('.decide', host), data.decision);
+      Scene.phone({ mode: 'off' });
+    },
+  };
+
+  /* ======================================================================
+     Courrier du régulateur : la lettre arrive, le délai court
+     ====================================================================== */
+  mods.regulator = {
+    mood: 'paper',
+    render(host, data) {
+      const L = data.letter;
+      host.innerHTML = `<div class="rg">
+        <div class="rg-desk">
+          <article class="rg-letter">
+            <header><div><b>${esc(L.from)}</b><span>${esc(L.unit)}</span></div><div class="rg-meta"><span>${esc(L.ref)}</span><span>${esc(L.date)}</span></div></header>
+            <p class="rg-to">${f(L.to)}</p>
+            <h4>${esc(L.subject)}</h4>
+            ${L.body.map(p => `<p>${f(p)}</p>`).join('')}
+            <ul class="rg-asks">${L.asks.map(a => `<li>${esc(a)}</li>`).join('')}</ul>
+            <p class="rg-sign">${esc(L.sign)}</p>
+            <span class="rg-stamp">${esc(L.stamp)}</span>
+          </article>
+          <aside class="rg-clock"><span>${esc(L.clockLabel)}</span><b>24:00:00</b></aside>
+        </div>
+        <div class="decide" hidden></div></div>`;
+    },
+    async launch(r, data, host) {
+      const wrap = $('.rg', host), asks = $$('.rg-asks li', host), out = $('.rg-clock b', host);
+      wrap.classList.add('run'); Sound.notify();
+      log(`${active.when.slice(4)} — courrier remis à la direction générale.`, 'bad');
+      await r.wait(900);
+      wrap.classList.add('stamped'); Scene.pulse(.8); Sound.alert();
+      // Le délai de 24 heures s'écoule en une minute environ.
+      let s = 24 * 3600;
+      r.every(50, () => { s = Math.max(0, s - 67); out.textContent = hms(s); });
+      for (const li of asks) { await r.wait(1000); li.classList.add('hot'); Sound.key(); log('Demandé : ' + li.textContent); }
+      await r.wait(1200);
+      await decide(r, $('.decide', host), data.decision);
+    },
+  };
+
+  /* ======================================================================
+     Vente sur le dark web : l'annonce, l'échantillon, les enchères qui montent
+     ====================================================================== */
+  mods.darkweb = (() => {
+    const num = v => v.toFixed(2).replace('.', ',');
+    return {
+      mood: 'term',
+      render(host, data) {
+        const M = data.market;
+        host.innerHTML = `<div class="dk">
+          <div class="dk-bar"><span class="dk-onion" aria-hidden="true"></span><span class="dk-url">${esc(M.url)}</span></div>
+          <div class="dk-body">
+            <div class="dk-main">
+              <p class="dk-lot">${esc(M.lot)}</p>
+              <h4 class="dk-title">${f(M.title)}</h4>
+              <p class="dk-size">${esc(M.size)}</p>
+              <table class="dk-sample"><caption>${esc(M.sampleTitle)}</caption>
+                <thead><tr>${M.sampleHead.map(h => `<th scope="col">${esc(h)}</th>`).join('')}</tr></thead>
+                <tbody>${M.sample.map(row => `<tr>${row.map(c => `<td>${esc(c)}</td>`).join('')}</tr>`).join('')}</tbody>
+              </table>
+              <ol class="dk-bids"></ol>
+            </div>
+            <dl class="dk-side">
+              <div><dt>${esc(M.labels.bid)}</dt><dd class="dk-price"><b>${num(M.start)}</b> BTC</dd></div>
+              <div><dt>${esc(M.labels.buy)}</dt><dd>${esc(M.buyNow)}</dd></div>
+              <div><dt>${esc(M.labels.ends)}</dt><dd class="dk-ends">${hms(M.hours * 3600)}</dd></div>
+              <div><dt>${esc(M.labels.views)}</dt><dd class="dk-views">312</dd></div>
+            </dl>
+          </div>
+          <div class="decide" hidden></div></div>`;
+      },
+      async launch(r, data, host) {
+        const M = data.market, title = $('.dk-title', host), price = $('.dk-price', host), ends = $('.dk-ends', host), views = $('.dk-views', host), bids = $('.dk-bids', host), full = fill(M.title);
+        $('.dk', host).classList.add('run');
+        log(`${active.when.slice(4)} — annonce publiée sur une place de marché clandestine.`, 'bad');
+        title.textContent = '';
+        for (let i = 1; i <= full.length; i++) { title.textContent = full.slice(0, i); if (i % 3 === 0) Sound.key(); await r.wait(22); }
+        let s = M.hours * 3600, v = 312;
+        r.every(80, () => { ends.textContent = hms(--s); });
+        r.every(260, () => { v += 1 + Math.floor(Math.random() * 14); views.textContent = v.toLocaleString('fr-CH'); });
+        $$('.dk-sample tbody tr', host).forEach((tr, i) => r.wait(300 + i * 350).then(() => tr.classList.add('in')));
+        await r.wait(1700);
+        log('Échantillon gratuit en ligne : trois dossiers clients.');
+        for (const b of M.bids) {
+          await r.wait(1500);
+          bids.append(el('li', '', `<b>${esc(b.who)}</b><span>${f(b.note)}</span><em>${num(b.amount)} BTC</em>`));
+          $('b', price).textContent = num(b.amount);
+          price.classList.remove('up'); void price.offsetWidth; price.classList.add('up');
+          Sound.notify(); Scene.pulse(.6); log(`Enchère de ${b.who} : ${num(b.amount)} BTC`, 'bad');
+        }
+        await r.wait(1300);
+        await decide(r, $('.decide', host), data.decision);
       },
     };
   })();

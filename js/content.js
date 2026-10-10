@@ -48,7 +48,8 @@ window.CONTENT = {
     'Mémoire .................... 32 768 Mo  OK',
     'Disque chiffré ............. déverrouillé',
     'Tunnel GVA-01 .............. établi',
-    'Scénario « Mandat délégué »  12 événements, {injects} injects',
+    'Scénario « Mandat délégué »  chargé',
+    'Catalogue .................. {injects} injects',
     'Périmètre .................. fermé, contenus marqués EXERCICE',
     'Ouverture de session…',
   ],
@@ -69,27 +70,46 @@ window.CONTENT = {
       { id: 'sim', label: 'Simulation' },
       { id: 'rest', label: 'Restitution' },
     ],
+    // Préparation : l'entonnoir qui mène au scénario. Vocabulaire de la résilience
+    // opérationnelle (fonctions critiques, scénarios graves mais plausibles).
     prep: {
-      caption: 'Vos menaces. Votre scénario.',
-      // Surface d'attaque balayée par le radar ; `locked` = les vecteurs retenus.
-      nodes: ['Messagerie', 'Core banking', 'Paiements', 'Presse', 'Téléphonie', 'Clients', 'Régulateur', 'Réseaux sociaux', 'Prestataires'],
-      locked: [0, 3, 2],
-      scenario: '« {scenario} »',
-      count: '12 événements, {injects} injects',
+      steps: ['Registre des menaces', 'Fonctions critiques', 'Scénarios graves mais plausibles'],
+      // PLACEHOLDER — référence réglementaire affichée en petit ; laisser vide pour la masquer. À valider.
+      ref: 'Circ. FINMA 2023/1',
+      // 1. Le radar balaie le registre ; `locked` = les menaces retenues (indices).
+      threats: ['Rançongiciel', 'Fraude au dirigeant', 'Prestataire compromis', 'Menace interne', 'Déni de service', 'Messagerie compromise', 'Sinistre sur un site', 'Désinformation', 'Vol d’accès à privilèges'],
+      locked: [0, 1, 7],
+      // 2. Chaque menace retenue touche des fonctions critiques : `links[i]` = les fonctions
+      //    atteintes par la i-ème menace retenue ; `critical` = celles qui ressortent.
+      functions: ['Paiements', 'Trésorerie', 'Gestion sous mandat', 'Négoce de titres', 'E-banking', 'Tenue de compte'],
+      links: [[0, 2, 5], [0, 1], [2, 4]],
+      critical: [0, 2],
+      // 3. Les scénarios candidats ; `chosen` = celui qui sera joué.
+      scenarios: [
+        { name: 'Mandat délégué', tags: 'Rançongiciel, gestion sous mandat' },
+        { name: 'Ordre fantôme', tags: 'Fraude au dirigeant, paiements' },
+        { name: 'Rumeur de quai', tags: 'Désinformation, gestion sous mandat' },
+        { name: 'Guichet fermé', tags: 'Rançongiciel, paiements' },
+      ],
+      chosen: 0,
+      count: '{beats} injects retenus sur {injects}',
     },
     sim: {
       caption: 'Une demi-journée en salle. Trois jours d’attaque.',
-      // PLACEHOLDER — les injects qui s'enchaînent à l'écran. `slot` (1 à 8) fixe la place
-      // de la fenêtre ; `inject` relie une fenêtre vidéo à sa démo (pour le fichier).
+      reelLabel: 'Catalogue',
+      // PLACEHOLDER — les injects joués. Le catalogue (tous les injects déclarés plus bas)
+      // défile en bas de l'écran et s'arrête sur `inject` avant d'ouvrir la fenêtre.
+      // `slot` (1 à 9) fixe la place de la fenêtre.
       beats: [
-        { kind: 'mail', slot: 1, day: 'Lundi', time: '07:42', tag: 'E-mail', from: 'Expéditeur inconnu', subject: 'Vos clients. Nos conditions.' },
-        { kind: 'news', slot: 2, day: 'Lundi', time: '11:05', tag: 'Presse', flag: 'Exclusif', headline: '{bank} : des dossiers clients en ligne', reach: 'Reprises' },
-        { kind: 'call', slot: 3, day: 'Lundi', time: '14:20', tag: 'Appel entrant', name: '{journalist}', sub: '{outlet}' },
+        { kind: 'mail', slot: 1, inject: 'messages', day: 'Lundi', time: '07:42', tag: 'E-mail', from: 'Expéditeur inconnu', subject: 'Vos clients. Nos conditions.' },
+        { kind: 'news', slot: 2, inject: 'fakenews', day: 'Lundi', time: '11:05', tag: 'Presse', flag: 'Exclusif', headline: '{bank} : des dossiers clients en ligne', reach: 'Reprises' },
+        { kind: 'call', slot: 3, inject: 'call', day: 'Lundi', time: '14:20', tag: 'Appel entrant', name: '{journalist}', sub: '{outlet}' },
         { kind: 'clip', slot: 7, inject: 'manif', day: 'Lundi', time: '17:30', tag: 'Manifestation', badge: 'En direct' },
+        { kind: 'dark', slot: 9, inject: 'darkweb', day: 'Lundi', time: '22:40', tag: 'Dark web', title: 'Base clients {bank}', label: 'Enchère en cours' },
         { kind: 'clip', slot: 8, inject: 'fire', day: 'Mardi', time: '04:40', tag: 'Datacenter', badge: 'Alerte' },
-        { kind: 'voice', slot: 4, day: 'Mardi', time: '13:15', tag: 'Voix clonée', who: 'Voix de {ceo}', line: '« On paie. Prépare le virement. »' },
+        { kind: 'voice', slot: 4, inject: 'voice', day: 'Mardi', time: '13:15', tag: 'Voix clonée', who: 'Voix de {ceo}', line: '« On paie. Prépare le virement. »' },
         { kind: 'video', slot: 5, inject: 'deepfake', day: 'Mardi', time: '18:10', tag: 'Deepfake', mark: 'visage généré' },
-        { kind: 'agent', slot: 6, day: 'Mercredi', time: '08:30', tag: 'Agent IA', lines: ['Mon nom est dans la fuite.', 'Je ne peux rien confirmer.', 'Alors je transfère mes avoirs.'] },
+        { kind: 'agent', slot: 6, inject: 'agent', day: 'Mercredi', time: '08:30', tag: 'Agent IA', lines: ['Mon nom est dans la fuite.', 'Je ne peux rien confirmer.', 'Alors je transfère mes avoirs.'] },
       ],
       // Tout arrive en même temps : les notifications qui submergent l'écran.
       flood: ['Demande presse', 'Client en ligne', 'Régulateur à l’accueil', '#{bankTag} en tendance', 'Appel manqué', 'Rançon : 100 M$', 'Police de Singapour', 'Avocats des clients', 'Service desk saturé', '1 000 dossiers de plus', 'Plus personne ne se connecte', 'Agence de presse'],
@@ -104,6 +124,7 @@ window.CONTENT = {
         { when: 'Lun 11:05', what: 'Article de presse', result: 'Aucun élément de langage', ok: false },
         { when: 'Lun 14:20', what: 'Appel de la journaliste', result: 'Deux informations confirmées', ok: false },
         { when: 'Lun 17:30', what: 'Manifestation devant le siège', result: 'Porte-parole envoyé en 40 minutes', ok: true },
+        { when: 'Lun 22:40', what: 'Vente sur le dark web', result: 'Vente constatée, clients informés', ok: true },
         { when: 'Mar 04:40', what: 'Datacenter en feu', result: 'Sauvegarde restaurée sans contrôle', ok: false },
         { when: 'Mar 13:15', what: 'Voix clonée du CEO', result: 'Contre-appel effectué', ok: true },
         { when: 'Mar 18:10', what: 'Deepfake vidéo', result: 'Paiement bloqué', ok: true },
@@ -227,6 +248,31 @@ window.CONTENT = {
       ],
     },
 
+    /* ---- Réseaux sociaux ---- */
+    {
+      id: 'social', when: 'Lun 12:30', name: 'Réseaux sociaux',
+      medium: 'Fil de publications',
+      tests: 'La tenue de la parole officielle quand la rumeur va plus vite qu’elle, et qu’un faux compte répond à votre place.',
+      tag: '#{bankTag}',
+      countLabel: 'publications',
+      // PLACEHOLDER — publications. `fake` = faux compte d'assistance, `victim` = client piégé.
+      posts: [
+        { who: 'Léa M.', handle: '@lea_mrt', text: 'Quelqu’un arrive à joindre {bank} ? Mon gestionnaire ne répond plus depuis ce matin.' },
+        { who: '{outlet}', handle: '@lettreduleman', text: 'Des dossiers de clients de {bank} circulent en ligne. La banque ne commente pas.' },
+        { who: 'Marc D.', handle: '@marcd_ge', text: 'Client depuis quinze ans. Je l’apprends ici, pas par ma banque.' },
+        { who: '{bank} Assistance', handle: '@{bankTag}_Aide', fake: true, text: 'Pour sécuriser votre compte, confirmez vos identifiants via le lien envoyé en message privé.' },
+        { who: 'Anna K.', handle: '@annak', victim: true, text: 'Merci @{bankTag}_Aide, c’est fait !' },
+      ],
+      fakeLabel: 'Faux compte',
+      decision: {
+        prompt: 'Un faux compte d’assistance répond à vos clients.',
+        options: [
+          { label: 'Ne rien publier pour ne pas alimenter', outcome: 'Silence du compte officiel : le faux compte reste la seule voix de la banque.', bad: true },
+          { label: 'Publier un message officiel et signaler le faux', outcome: 'Message officiel publié, faux compte signalé et suspendu.' },
+        ],
+      },
+    },
+
     /* ---- Faux appel ---- */
     {
       id: 'call', when: 'Lun 14:20', name: 'Appel entrant',
@@ -268,6 +314,37 @@ window.CONTENT = {
       ],
     },
 
+    /* ---- Courrier du régulateur ---- */
+    {
+      id: 'regulator', when: 'Lun 16:45', name: 'Lettre du régulateur',
+      medium: 'Lettre officielle, délai de 24 heures',
+      tests: 'L’obligation d’annonce quand vous ne savez pas encore tout : qui rédige, qui signe, que dit-on.',
+      // PLACEHOLDER — lettre. L'autorité reste générique : pas de logo ni de nom réel.
+      letter: {
+        from: 'Autorité de surveillance',
+        unit: 'Division Banques',
+        ref: 'Réf. INC-2026-0412',
+        date: 'Lundi, 16 h 45',
+        to: 'À la direction générale de {bank}',
+        subject: 'Demande d’informations sur un incident de sécurité',
+        body: [
+          'Nous avons pris connaissance, par voie de presse, d’une possible compromission de vos systèmes et de la publication de données de clients.',
+          'Nous vous prions de nous transmettre les éléments suivants dans un délai de 24 heures.',
+        ],
+        asks: ['Nature et chronologie de l’incident', 'Fonctions critiques touchées', 'Clients et données concernés', 'Mesures prises et plan de reprise', 'Personne de contact joignable en permanence'],
+        sign: 'Le responsable de la surveillance',
+        stamp: 'Reçu 16:45',
+        clockLabel: 'Délai restant',
+      },
+      decision: {
+        prompt: 'Vous ne savez pas encore tout. Le délai court.',
+        options: [
+          { label: 'Attendre d’en savoir plus', outcome: 'Délai dépassé sans annonce : le régulateur ouvre une procédure.', bad: true },
+          { label: 'Annoncer dans le délai ce que l’on sait', outcome: 'Annonce initiale envoyée dans le délai, complétée par la suite.' },
+        ],
+      },
+    },
+
     /* ---- Manifestation devant la banque ---- */
     {
       id: 'manif', kind: 'clip', skin: 'tv', when: 'Lun 17:30', name: 'Manifestation',
@@ -288,6 +365,41 @@ window.CONTENT = {
         options: [
           { label: 'Ne rien dire, attendre que ça passe', outcome: 'Aucune prise de parole : les images tournent en boucle sans votre version.', bad: true },
           { label: 'Envoyer un porte-parole préparé', outcome: 'Prise de parole courte et préparée, reprise dans le direct.' },
+        ],
+      },
+    },
+
+    /* ---- Vente sur le dark web ---- */
+    {
+      id: 'darkweb', when: 'Lun 22:40', name: 'Dark web',
+      medium: 'Place de marché clandestine',
+      tests: 'La décision face à une mise aux enchères de vos données : racheter, négocier, ou constater et informer avant la fin de la vente.',
+      // PLACEHOLDER — annonce. Les lignes d'échantillon sont fictives et masquées.
+      market: {
+        url: 'lm4rk3t7xq2vd…onion/lot/48213',
+        lot: 'Lot 48213, vendeur lake_0x (4,9 sur 5, 212 ventes)',
+        title: '{bank} : base clients complète',
+        size: '38 Go, 11 400 dossiers, mandats et pièces d’identité',
+        labels: { bid: 'Enchère en cours', buy: 'Achat immédiat', ends: 'Fin de la vente', views: 'Vues' },
+        start: 6.5, buyNow: '40 BTC', hours: 48,
+        sampleTitle: 'Échantillon gratuit',
+        sampleHead: ['Client', 'Pays', 'Avoirs', 'Pièces'],
+        sample: [
+          ['V••• d•• M•••', 'NL', 'CHF 140 M', 'Passeport, mandat'],
+          ['A••••• K•••••', 'CH', 'CHF 62 M', 'Passeport, relevés'],
+          ['S•••• H••••••', 'AE', 'CHF 210 M', 'Mandat, état de fortune'],
+        ],
+        bids: [
+          { who: 'kr0n', amount: 7.2, note: 'Échantillon vérifié, c’est authentique.' },
+          { who: 'acheteur_77', amount: 9.8, note: 'Je prends le lot des grandes fortunes.' },
+          { who: 'n0rd', amount: 12.4, note: 'Preuve reçue. Je monte.' },
+        ],
+      },
+      decision: {
+        prompt: 'Vos données sont aux enchères. La vente se termine dans 48 heures.',
+        options: [
+          { label: 'Racheter le lot par un intermédiaire', outcome: 'Rachat tenté : aucune garantie de destruction, et un paiement à des criminels à justifier.', bad: true },
+          { label: 'Faire constater et prévenir les clients', outcome: 'Vente constatée, clients concernés informés avant la presse.' },
         ],
       },
     },
